@@ -1,64 +1,79 @@
 <template>
-  <div style="height: 800px; width: 100%">
-    <!-- <button @click="getLocation">Try It</button>
-    <div style="height: 200px overflow: auto;">
-      <p>First marker is placed at {{ withPopup.lat }}, {{ withPopup.lng }}</p>
-      <p>Center is at {{ currentCenter }} and the zoom is: {{ currentZoom }}</p>
-      <button @click="showLongText">
-        Toggle long popup
-      </button>
-      <button @click="showMap = !showMap">
-        Toggle map
-      </button>
-    </div> -->
-    <l-map
-      v-if="showMap"
-      :zoom="zoom"
-      :center="center"
-      :options="mapOptions"
-      style="height: 80%"
-      @update:center="centerUpdate"
-      @update:zoom="zoomUpdate"
-    >
-      <l-tile-layer :url="url" :attribution="attribution" />
-      <l-marker :lat-lng="withPopup" :icon="icons.red">
-        <l-popup>
-          <div @click="innerClick">
-            當前位置
-            <p v-show="showParagraph">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-              sed pretium nisl, ut sagittis sapien. Sed vel sollicitudin nisi.
-              Donec finibus semper metus id malesuada.
+  <v-container fluid class="pa-0 ma-0">
+    <v-row>
+      <v-col cols="12">
+        <div style="height: 800px; ">
+          <!-- <button @click="getLocation">Try It</button>
+          <div style="height: 200px overflow: auto;">
+            <p>
+              First marker is placed at {{ withPopup.lat }}, {{ withPopup.lng }}
             </p>
-          </div>
-        </l-popup>
-      </l-marker>
-      <div v-if="Mask.length > 0">
-        <l-marker
-          v-for="item in items"
-          :key="item.properties.id"
-          :icon="item.properties.mask_adult < 50 ? icons.grey : icons.green"
-          :lat-lng="{
-            lat: item.geometry.coordinates[1],
-            lng: item.geometry.coordinates[0]
-          }"
-        >
-          <l-popup>
-            <div @click="innerClick">
-              {{ item.properties.name }}
-              <p>成人口罩:{{ item.properties.mask_adult }}</p>
-              <p>兒童口罩:{{ item.properties.mask_child }}</p>
+            <p>
+              Center is at {{ currentCenter }} and the zoom is:
+              {{ currentZoom }}
+            </p>
+            <button @click="showLongText">
+              Toggle long popup
+            </button>
+            <button @click="showMap = !showMap">
+              Toggle map
+            </button>
+          </div> -->
+          <l-map
+            v-if="showMap"
+            :zoom="zoom"
+            :center="center"
+            :options="mapOptions"
+            style="height: 80%"
+            @update:center="centerUpdate"
+            @update:zoom="zoomUpdate"
+          >
+            <l-tile-layer :url="url" :attribution="attribution" />
+            <l-marker :lat-lng="withPopup" :icon="icons.red">
+              <l-popup>
+                <div @click="innerClick">
+                  當前位置
+                  <p v-show="showParagraph">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Quisque sed pretium nisl, ut sagittis sapien. Sed vel
+                    sollicitudin nisi. Donec finibus semper metus id malesuada.
+                  </p>
+                </div>
+              </l-popup>
+            </l-marker>
+            <div v-if="Mask.length > 0">
+              <l-marker
+                v-for="item in items"
+                :key="item.properties.id"
+                :icon="
+                  item.properties.mask_adult >= 100
+                    ? icons.green
+                    : item.properties.mask_adult >= 50 &&
+                      item.properties.mask_adult <= 99
+                    ? icons.orange
+                    : icons.grey
+                "
+                :lat-lng="{
+                  lat: item.geometry.coordinates[1],
+                  lng: item.geometry.coordinates[0]
+                }"
+              >
+                <l-popup>
+                  <div @click="innerClick">
+                    {{ item.properties.name }}
+                    <p>成人口罩:{{ item.properties.mask_adult }}</p>
+                    <p>兒童口罩:{{ item.properties.mask_child }}</p>
 
-              <!-- <p v-show="showParagraph">
+                    <!-- <p v-show="showParagraph">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
                 sed pretium nisl, ut sagittis sapien. Sed vel sollicitudin nisi.
                 Donec finibus semper metus id malesuada.
               </p> -->
+                  </div>
+                </l-popup>
+              </l-marker>
             </div>
-          </l-popup>
-        </l-marker>
-      </div>
-      <!-- <l-marker :lat-lng="withTooltip">
+            <!-- <l-marker :lat-lng="withTooltip">
         <l-tooltip :options="{ permanent: true, interactive: true }">
           <div @click="innerClick">
             I am a tooltip
@@ -70,8 +85,35 @@
           </div>
         </l-tooltip>
       </l-marker> -->
-    </l-map>
-  </div>
+            <l-control >
+              <v-speed-dial
+                v-model="fab"
+                right
+                direction="bottom"
+                style="z-index:9999;position:absolute"
+              >
+                <template v-slot:activator>
+                  <v-btn v-model="fab" color="blue darken-2" dark fab>
+                    <v-icon v-if="fab">mdi-close</v-icon>
+                    <v-icon v-else>mdi-cogs</v-icon>
+                  </v-btn>
+                </template>
+                <!-- <v-btn fab dark small color="green" @click="getLocation">
+              <v-icon>mdi-reload</v-icon>
+            </v-btn> -->
+
+                <v-btn fab dark small color="red" @click="pageReload">
+                  <v-icon>mdi-crosshairs-gps</v-icon>
+                </v-btn>
+              </v-speed-dial>
+            </l-control>
+          </l-map>
+
+          <div></div>
+        </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -98,7 +140,7 @@ export default {
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       withPopup: latLng(47.41322, -1.219482),
       withTooltip: latLng(47.41422, -1.250482),
-      currentZoom: 11.5,
+      currentZoom: 16,
       currentCenter: latLng(47.41322, -1.219482),
       showParagraph: false,
       mapOptions: {
@@ -117,6 +159,12 @@ export default {
           iconSize: [32, 37],
           iconAnchor: [16, 37]
         }),
+        orange: icon({
+          iconUrl:
+            "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
+          iconSize: [32, 37],
+          iconAnchor: [16, 37]
+        }),
         grey: icon({
           iconUrl:
             "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png",
@@ -129,7 +177,9 @@ export default {
           iconSize: [32, 37],
           iconAnchor: [16, 37]
         })
-      }
+      },
+
+      fab: false
     };
   },
   mounted() {
@@ -141,6 +191,9 @@ export default {
       // console.log(val);
       this.centerUpdate(val);
       this.getData();
+    },
+    center(val) {
+      // console.log(val);
     }
   },
   computed: {
@@ -161,6 +214,9 @@ export default {
     }
   },
   methods: {
+    pageReload() {
+      location.reload();
+    },
     async getData() {
       await axios
         .get(
@@ -182,7 +238,7 @@ export default {
       this.showParagraph = !this.showParagraph;
     },
     innerClick() {
-      alert("Click!");
+      // alert("Click!");
     },
     getLocation() {
       if (navigator.geolocation) {
@@ -193,22 +249,15 @@ export default {
       // console.log(position.coords.latitude, position.coords.longitude);
       this.position.latitude = position.coords.latitude;
       this.position.longitude = position.coords.longitude;
-      this.withPopup = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
+      let tmp = latLng(position.coords.latitude, position.coords.longitude);
+      this.withPopup = tmp;
 
-      this.centerUpdate({
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      });
+      this.centerUpdate(tmp);
 
-      this.center = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
+      this.center = tmp;
       this.getData();
     }
   }
 };
 </script>
+<style></style>
