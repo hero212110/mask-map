@@ -21,10 +21,10 @@
       @update:zoom="zoomUpdate"
     >
       <l-tile-layer :url="url" :attribution="attribution" />
-      <l-marker :lat-lng="withPopup">
+      <l-marker :lat-lng="withPopup" :icon="icons.red">
         <l-popup>
           <div @click="innerClick">
-            I am a popup
+            當前位置
             <p v-show="showParagraph">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
               sed pretium nisl, ut sagittis sapien. Sed vel sollicitudin nisi.
@@ -37,6 +37,7 @@
         <l-marker
           v-for="item in items"
           :key="item.properties.id"
+          :icon="item.properties.mask_adult < 50 ? icons.grey : icons.green"
           :lat-lng="{
             lat: item.geometry.coordinates[1],
             lng: item.geometry.coordinates[0]
@@ -74,9 +75,11 @@
 </template>
 
 <script>
-import { latLng } from "leaflet";
+import { latLng, icon } from "leaflet";
 import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet";
+
 import axios from "axios";
+
 export default {
   name: "Example",
   components: {
@@ -102,7 +105,31 @@ export default {
         zoomSnap: 0.5
       },
       showMap: true,
-      Mask: []
+      Mask: [],
+      position: {
+        latitude: "",
+        longitude: ""
+      },
+      icons: {
+        green: icon({
+          iconUrl:
+            "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+          iconSize: [32, 37],
+          iconAnchor: [16, 37]
+        }),
+        grey: icon({
+          iconUrl:
+            "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png",
+          iconSize: [32, 37],
+          iconAnchor: [16, 37]
+        }),
+        red: icon({
+          iconUrl:
+            "https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+          iconSize: [32, 37],
+          iconAnchor: [16, 37]
+        })
+      }
     };
   },
   mounted() {
@@ -110,17 +137,25 @@ export default {
     this.getData();
   },
   watch: {
-    // currentCenter(val) {
-    //   console.log(val);
-    //   this.centerUpdate(val);
-    // }
+    currentCenter(val) {
+      console.log(val);
+      this.centerUpdate(val);
+      this.getData();
+    }
   },
   computed: {
     items() {
       let tmp = [];
-      for (let i = 0; i < 20; i++) {
-        tmp.push(this.Mask[i]);
-      }
+      this.Mask.forEach(item => {
+        if (
+          Math.abs(item.geometry.coordinates[1] - this.currentCenter.lat) <
+            0.01 &&
+          Math.abs(item.geometry.coordinates[0] - this.currentCenter.lng) < 0.01
+        ) {
+          tmp.push(item);
+        }
+      });
+
       console.log(tmp);
       return tmp;
     }
@@ -132,7 +167,7 @@ export default {
           "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json"
         )
         .then(res => {
-          console.log(res.data.features);
+          // console.log(res.data.features);
           this.Mask = res.data.features;
         });
     },
@@ -140,7 +175,7 @@ export default {
       this.currentZoom = zoom;
     },
     centerUpdate(center) {
-      console.log(center);
+      // console.log(center);
       this.currentCenter = center;
     },
     showLongText() {
@@ -156,6 +191,8 @@ export default {
     },
     showPosition(position) {
       console.log(position.coords.latitude, position.coords.longitude);
+      this.position.latitude = position.coords.latitude;
+      this.position.longitude = position.coords.longitude;
       this.withPopup = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
@@ -170,6 +207,7 @@ export default {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
+      this.getData();
     }
   }
 };
