@@ -138,7 +138,7 @@ export default {
   },
   watch: {
     currentCenter(val) {
-      console.log(val);
+      // console.log(val);
       this.centerUpdate(val);
       this.getData();
     }
@@ -156,7 +156,7 @@ export default {
         }
       });
 
-      console.log(tmp);
+      // console.log(tmp);
       return tmp;
     }
   },
@@ -190,7 +190,7 @@ export default {
       }
     },
     showPosition(position) {
-      console.log(position.coords.latitude, position.coords.longitude);
+      // console.log(position.coords.latitude, position.coords.longitude);
       this.position.latitude = position.coords.latitude;
       this.position.longitude = position.coords.longitude;
       this.withPopup = {
