@@ -1,6 +1,7 @@
 <template>
-  <div :style="windowHeight">
-    <!-- <button @click="getLocation">Try It</button>
+  <v-container fluid class="pa-0 ma-0">
+    <div :style="windowHeight">
+      <!-- <button @click="getLocation">Try It</button>
           <div style="height: 200px overflow: auto;">
             <p>
               First marker is placed at {{ withPopup.lat }}, {{ withPopup.lng }}
@@ -16,112 +17,152 @@
               Toggle map
             </button>
           </div> -->
-    <l-map
-      v-if="showMap"
-      :zoom="zoom"
-      :center="center"
-      :options="mapOptions"
-      style="height: 100%"
-      @update:center="centerUpdate"
-      @update:zoom="zoomUpdate"
-    >
-      <l-tile-layer :url="url" :attribution="attribution" />
-      <l-marker :lat-lng="withPopup" :icon="icons.red">
-        <l-popup>
-          <div @click="innerClick">
-            當前位置
-            <p v-show="showParagraph">
-              Lorem
-            </p>
-          </div>
-        </l-popup>
-      </l-marker>
-      <div v-if="Mask.length > 0 && currMaskType == 'mdi-face'">
-        <l-marker
-          v-for="item in items"
-          :key="item.properties.id"
-          :icon="
-            item.properties.mask_adult >= 100
-              ? icons.green
-              : item.properties.mask_adult >= 50 &&
-                item.properties.mask_adult <= 99
-              ? icons.orange
-              : icons.grey
-          "
-          :lat-lng="{
-            lat: item.geometry.coordinates[1],
-            lng: item.geometry.coordinates[0]
-          }"
-        >
+      <l-map
+        v-if="showMap"
+        :zoom="zoom"
+        :center="center"
+        :options="mapOptions"
+        style="height: 100%"
+        @update:center="centerUpdate"
+        @update:zoom="zoomUpdate"
+      >
+        <l-tile-layer :url="url" :attribution="attribution" />
+        <l-marker :lat-lng="withPopup" :icon="icons.red">
           <l-popup>
-            <div style="font-family:Microsoft JhengHei">
-              <p><v-icon>mdi-store-outline</v-icon>藥局:{{ item.properties.name }}</p>
-              <p><v-icon>mdi-map-marker</v-icon>地址:{{ item.properties.address }}</p>
-              <p><v-icon>mdi-phone</v-icon>電話:{{ item.properties.phone }}</p>
-              <v-divider></v-divider>
-              <p><v-icon>mdi-face</v-icon>成人口罩:{{ item.properties.mask_adult }} </p>
-              <p><v-icon>mdi-baby-face-outline</v-icon>兒童口罩:{{ item.properties.mask_child }}</p>
+            <div @click="innerClick">
+              當前位置
+              <p v-show="showParagraph">
+                Lorem
+              </p>
             </div>
           </l-popup>
         </l-marker>
-      </div>
-      <div v-if="Mask.length > 0 && currMaskType == 'mdi-baby-face-outline'">
-        <l-marker
-          v-for="item in items"
-          :key="item.properties.id"
-          :icon="
-            item.properties.mask_child >= 100
-              ? icons.green
-              : item.properties.mask_child >= 50 &&
-                item.properties.mask_child <= 99
-              ? icons.orange
-              : icons.grey
-          "
-          :lat-lng="{
-            lat: item.geometry.coordinates[1],
-            lng: item.geometry.coordinates[0]
-          }"
-        >
-          <l-popup>
-            <div style="font-family:Microsoft JhengHei">
-              <p><v-icon>mdi-store-outline</v-icon>藥局:{{ item.properties.name }}</p>
-              <p><v-icon>mdi-map-marker</v-icon>地址:{{ item.properties.address }}</p>
-              <p><v-icon>mdi-phone</v-icon>電話:{{ item.properties.phone }}</p>
-              <v-divider></v-divider>
-              <p><v-icon>mdi-face</v-icon>成人口罩:{{ item.properties.mask_adult }} </p>
-              <p><v-icon>mdi-baby-face-outline</v-icon>兒童口罩:{{ item.properties.mask_child }}</p>
-            </div>
-          </l-popup>
-        </l-marker>
-      </div>
+        <div v-if="Mask.length > 0 && currMaskType == 'mdi-face'">
+          <l-marker
+            v-for="item in items"
+            :key="item.properties.id"
+            :icon="
+              item.properties.mask_adult >= 100
+                ? icons.green
+                : item.properties.mask_adult >= 50 &&
+                  item.properties.mask_adult <= 99
+                ? icons.orange
+                : icons.grey
+            "
+            :lat-lng="{
+              lat: item.geometry.coordinates[1],
+              lng: item.geometry.coordinates[0]
+            }"
+          >
+            <l-popup>
+              <div style="font-family:Microsoft JhengHei">
+                <p>
+                  <v-icon>mdi-store-outline</v-icon>藥局:{{
+                    item.properties.name
+                  }}
+                </p>
+                <p>
+                  <v-icon>mdi-map-marker</v-icon>地址:{{
+                    item.properties.address
+                  }}
+                </p>
+                <p>
+                  <v-icon>mdi-phone</v-icon>電話:{{ item.properties.phone }}
+                </p>
+                <p v-if="item.properties.note != '-'">
+                  <v-icon>mdi-lead-pencil</v-icon>備註:{{
+                    item.properties.note
+                  }}
+                </p>
+                <v-divider></v-divider>
+                <p>
+                  <v-icon>mdi-face</v-icon>成人口罩:{{
+                    item.properties.mask_adult
+                  }}
+                </p>
+                <p>
+                  <v-icon>mdi-baby-face-outline</v-icon>兒童口罩:{{
+                    item.properties.mask_child
+                  }}
+                </p>
+              </div>
+            </l-popup>
+          </l-marker>
+        </div>
+        <div v-if="Mask.length > 0 && currMaskType == 'mdi-baby-face-outline'">
+          <l-marker
+            v-for="item in items"
+            :key="item.properties.id"
+            :icon="
+              item.properties.mask_child >= 100
+                ? icons.green
+                : item.properties.mask_child >= 50 &&
+                  item.properties.mask_child <= 99
+                ? icons.orange
+                : icons.grey
+            "
+            :lat-lng="{
+              lat: item.geometry.coordinates[1],
+              lng: item.geometry.coordinates[0]
+            }"
+          >
+            <l-popup>
+              <div style="font-family:Microsoft JhengHei">
+                <p>
+                  <v-icon>mdi-store-outline</v-icon>藥局:{{
+                    item.properties.name
+                  }}
+                </p>
+                <p>
+                  <v-icon>mdi-map-marker</v-icon>地址:{{
+                    item.properties.address
+                  }}
+                </p>
+                <p>
+                  <v-icon>mdi-phone</v-icon>電話:{{ item.properties.phone }}
+                </p>
+                <v-divider></v-divider>
+                <p>
+                  <v-icon>mdi-face</v-icon>成人口罩:{{
+                    item.properties.mask_adult
+                  }}
+                </p>
+                <p>
+                  <v-icon>mdi-baby-face-outline</v-icon>兒童口罩:{{
+                    item.properties.mask_child
+                  }}
+                </p>
+              </div>
+            </l-popup>
+          </l-marker>
+        </div>
 
-      <l-control>
-        <v-btn fab dark small color="red" @click="changeMaskType">
-          <v-icon>{{ currMaskType }}</v-icon>
-        </v-btn>
-      </l-control>
+        <l-control>
+          <v-btn fab dark small color="red" @click="changeMaskType">
+            <v-icon>{{ currMaskType }}</v-icon>
+          </v-btn>
+        </l-control>
 
-      <l-control position="bottomright">
-        <v-speed-dial v-model="fab" right direction="top">
-          <template v-slot:activator>
-            <v-btn v-model="fab" color="blue darken-2" dark fab>
-              <v-icon v-if="fab">mdi-close</v-icon>
-              <v-icon v-else>mdi-cogs</v-icon>
+        <l-control position="bottomright">
+          <v-speed-dial v-model="fab" right direction="top">
+            <template v-slot:activator>
+              <v-btn v-model="fab" color="blue darken-2" dark fab>
+                <v-icon v-if="fab">mdi-close</v-icon>
+                <v-icon v-else>mdi-cogs</v-icon>
+              </v-btn>
+            </template>
+            <v-btn fab dark small color="green" @click="getData">
+              <v-icon>mdi-reload</v-icon>
             </v-btn>
-          </template>
-          <v-btn fab dark small color="green" @click="getData">
-            <v-icon>mdi-reload</v-icon>
-          </v-btn>
 
-          <v-btn fab dark small color="red" @click="pageReload">
-            <v-icon>mdi-crosshairs-gps</v-icon>
-          </v-btn>
-        </v-speed-dial>
-      </l-control>
-    </l-map>
-
-    <div></div>
-  </div>
+            <v-btn fab dark small color="red" @click="pageReload">
+              <v-icon>mdi-crosshairs-gps</v-icon>
+            </v-btn>
+          </v-speed-dial>
+        </l-control>
+      </l-map>
+    </div>
+  </v-container>
 </template>
 
 <script>
@@ -209,7 +250,7 @@ export default {
     currentCenter(val) {
       this.centerUpdate(val);
       this.getData();
-    },
+    }
     // center(val) {
     //   console.log(val);
     // }
